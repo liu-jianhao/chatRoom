@@ -30,10 +30,6 @@ int main(int argc,char **argv)
     if (argc != 3) {
         usage(argv[0]);
     }
-    if ((fp = fopen(argv[2], "w")) == NULL) {
-        perror("Open file failed\n");
-        exit(0);
-    }
     if ((sock_id = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Create socket failed\n");
         exit(0);
@@ -55,6 +51,12 @@ int main(int argc,char **argv)
     }
 
     while (1) {
+        if ((fp = fopen(argv[2], "w")) == NULL) {
+            perror("Open file failed\n");
+            exit(0);
+        }
+
+
         clie_addr_len = sizeof(clie_addr);
         link_id = accept(sock_id, (struct sockaddr *)&clie_addr, &clie_addr_len);
         if (-1 == link_id) {
@@ -67,7 +69,13 @@ int main(int argc,char **argv)
                 printf("Recieve Data From Server Failed!\n");
                 break;
             }
-            //printf("#");
+            /*
+            else if(recv_len == 0){
+                printf("finish\n");
+                break;
+            }
+            */
+            printf("#");
             write_leng = fwrite(buf, sizeof(char), recv_len, fp);
             if (write_leng < recv_len) {
                 printf("Write file failed\n");
@@ -78,7 +86,7 @@ int main(int argc,char **argv)
         printf("\nFinish Recieve\n");
 
         char cmd[100];
-        sprintf(cmd, "mplayer %s", argv[2]);
+        sprintf(cmd, "aplay %s", argv[2]);
         system(cmd);
 
         fclose(fp);

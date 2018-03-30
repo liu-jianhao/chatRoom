@@ -4,4 +4,4 @@ all:
 
 
 clean:
-	rm trans_cli trans_ser
+	rm -rf trans_cli trans_ser ser cli
