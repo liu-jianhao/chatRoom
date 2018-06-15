@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <time.h>
 
+
 int main(int argc, char *argv[])
 {
     struct sockaddr_in clientaddr; //定义地址结构
