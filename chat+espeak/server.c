@@ -22,7 +22,6 @@
 #define WELCOME "|---------------Welcome to the chat room!----------------|"//当客户端连接服务端时，向客户端发送此字符串
 
 
-
 //将int类型转换成char*类型
 void itoa(int i, char *string)
 {
