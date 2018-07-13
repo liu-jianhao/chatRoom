@@ -1,8 +1,8 @@
 ## dayTwo
-学习qt，然后写出一个图形界面的客户端，暂时先不考虑没不美观、只考虑功能实现
+学习qt，并实现一个能和服务端连接上并且能交流的一个TCP客户端demo
 
-### Linux环境下运行的客户端:
-![](https://github.com/liu-jianhao/chatRoom/blob/master/dayTwo/TcpClient.png)
+### Linux环境下运行的TCP客户端:
+![](https://github.com/liu-jianhao/chatRoom/blob/master/dayTwo/communication.png)
 
 ### 与dayOne实现的服务器一起运行:
-![](https://github.com/liu-jianhao/chatRoom/blob/master/dayTwo/chatRoomV0.1.png)
+![](https://github.com/liu-jianhao/chatRoom/blob/master/dayTwo/TcpClientV0.01.png)

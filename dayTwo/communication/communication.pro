@@ -1,14 +1,15 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-02-18T08:51:00
+# Project created by QtCreator 2018-07-12T14:11:15
 #
 #-------------------------------------------------
 
 QT       += core gui
 QT       += network
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = TcpClient
+TARGET = communication
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -24,6 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        tcpclient.cpp
+        dialog.cpp
 
-HEADERS  += tcpclient.h
+HEADERS  += dialog.h
