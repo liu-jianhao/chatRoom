@@ -19,20 +19,6 @@
 #define MYPORT  12345 //通信端口
 #define BACKLOG 10 //定义服务器段可以连接的最大客户数
 #define WELCOME "|---------------Welcome to the chat room!----------------|"//当客户端连接服务端时，向客户端发送此字符串
-//将int类型转换成char*类型
-void itoa(int i, char *string)
-{
-    int mask = 1;
-    while (i / mask >= 10)
-        mask *= 10;
-    while (mask > 0)
-    {
-        *string++ = i / mask + '0';
-        i %= mask;
-        mask /= 10;
-    }
-    *string = '\0';
-}
 
 //得到当前系统的时间
 void get_cur_time(char *time_str)
@@ -161,6 +147,7 @@ int main(int argc, char *argv[])
                         strcpy(temp, read_addr); //更新temp，表示已经读取过该消息
 
                         get_cur_time(time_str);
+                        strcat(read_addr, "  ");
                         strcat(read_addr, time_str);
                         if (send(clientfd, read_addr, strlen(read_addr), 0) == -1)
                         {
