@@ -31,3 +31,8 @@
 
 ## dayFour
 今天把注意力放在服务器，之前写的服务器有点看不过去，现在写一个reactor模式的聊天服务器，这样服务器的并发性能更好
+
+
+## dayFive
+今天继续修改dayFour写的服务器，加上日志的功能
+为了方便（偷懒），日志采用开源库[spdlog](https://github.com/gabime/spdlog/)
