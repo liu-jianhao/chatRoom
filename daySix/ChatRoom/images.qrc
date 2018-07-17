@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/liu.png</file>
+        <file>images/qq.png</file>
+        <file>images/Linux.jpg</file>
+    </qresource>
+</RCC>
