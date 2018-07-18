@@ -38,6 +38,7 @@ private:
 private slots:
     void processPendingDatagrams();
     void on_sendBtn_clicked();
+    void on_exitBtn_clicked();
 };
 
 #endif // WIDGET_H

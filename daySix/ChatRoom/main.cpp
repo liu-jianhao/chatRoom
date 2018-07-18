@@ -1,4 +1,3 @@
-#include "chatroom.h"
 #include "sign.h"
 #include "drawer.h"
 #include <QApplication>

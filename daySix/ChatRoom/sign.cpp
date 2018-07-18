@@ -1,5 +1,4 @@
 #include "sign.h"
-#include "chatroom.h"
 #include "drawer.h"
 #include <QString>
 #include <QMessageBox>

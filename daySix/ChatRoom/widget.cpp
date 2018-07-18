@@ -158,3 +158,8 @@ void Widget::on_sendBtn_clicked()
 {
     sndMsg(Msg);
 }
+
+void Widget::on_exitBtn_clicked()
+{
+    close();
+}

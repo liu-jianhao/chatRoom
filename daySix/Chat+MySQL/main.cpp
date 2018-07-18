@@ -1,17 +1,12 @@
 #include "MyReactor.h"
 
-
-#include "spdlog/sinks/daily_file_sink.h"
-#include "spdlog/sinks/basic_file_sink.h"
-auto main_logger = spdlog::stdout_color_mt("main_logger");
-
-
 MyReactor g_reactor;
 
 
 void prog_exit(int signo)
 {
-    main_logger->info("program recv signal {} to exit.", signo);
+    std::cout << "program recv signal " << signo << " to exit." << std::endl;
+
     g_reactor.uninit();
 }
 
@@ -19,12 +14,16 @@ void daemon_run()
 {
     int pid;
     signal(SIGCHLD, SIG_IGN);
+    //1）在父进程中，fork返回新创建子进程的进程ID；
+    //2）在子进程中，fork返回0；
+    //3）如果出现错误，fork返回一个负值；
     pid = fork();
     if (pid < 0)
     {
-        main_logger->error("fork error");
+        std:: cout << "fork error" << std::endl;
         exit(-1);
     }
+    //父进程退出，子进程独立运行
     else if (pid > 0) {
         exit(0);
     }
@@ -84,7 +83,7 @@ int main(int argc, char* argv[])
 
     g_reactor.main_loop(&g_reactor);
 
-    main_logger->info("main exit");
+    std::cout << "main exit" << std::endl;
 
     return 0;
 }

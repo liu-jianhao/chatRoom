@@ -25,12 +25,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        chatroom.cpp \
     sign.cpp \
     drawer.cpp \
     widget.cpp
 
-HEADERS  += chatroom.h \
+HEADERS  += \
     sign.h \
     command.h \
     drawer.h \
