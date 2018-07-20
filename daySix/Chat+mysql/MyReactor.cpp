@@ -33,12 +33,12 @@ bool MyReactor::init(const char* ip, short nport)
         return false;
     }
 
-    std::cout << "main thread id = " << pthread_self() << std::endl;
-
     ARG *arg = new ARG();
     arg->pThis = this;
 
     pthread_create(&m_accept_threadid, NULL, accept_thread_proc, (void*)arg);
+
+    pthread_create(&m_send_threadid, NULL, send_thread_proc, (void*)arg);
 
     for(int i = 0; i < WORKER_THREAD_NUM; i++)
     {
@@ -173,6 +173,11 @@ void* MyReactor::accept_thread_proc(void* args)
         if(newfd == -1)
             continue;
 
+
+        pthread_mutex_lock(&pReactor->m_cli_mutex);
+        pReactor->m_fds.insert(newfd);
+        pthread_mutex_unlock(&pReactor->m_cli_mutex);
+
         my_logger->info("new client connected: ");
 
         /* 将新socket设置为non-blocking */
@@ -218,6 +223,9 @@ void* MyReactor::worker_thread_proc(void* args)
 
         std::cout << std::endl;
 
+        time_t now = time(NULL);
+        struct tm* nowstr = localtime(&now);
+        std::ostringstream ostimestr;
 
         std::string strclientmsg;
         char buff[256];
@@ -226,26 +234,6 @@ void* MyReactor::worker_thread_proc(void* args)
         {
             memset(buff, 0, sizeof(buff));
             int nRecv = recv(clientfd, buff, 256, 0);
-            if(nRecv == -1)
-            {
-                if(errno == EWOULDBLOCK)
-                    break;
-                else
-                {
-                    std::cout << "recv error, client disconnected, fd = " << clientfd << std::endl;
-                    pReactor->close_client(clientfd);
-                    bError = true;
-                    break;
-                }
-            }
-            /* 对端关闭了socket，这端也关闭 */
-            else if(nRecv == 0)
-            {
-                std::cout << "peer clised, client disconnected, fd = " << clientfd << std::endl;
-                pReactor->close_client(clientfd);
-                bError = true;
-                break;
-            }
 
 
             //如果是注册或登录命令，则要另外处理
@@ -296,7 +284,7 @@ void* MyReactor::worker_thread_proc(void* args)
                 const char *name = rec.substr(1, it-1).c_str();
                 const char *password = rec.substr(it+1, rec.size()-1).c_str();
 
-                std::cout << name << '\t' << password << std::endl;
+                /* std::cout << name << '\t' << password << std::endl; */
                 char query[100];
                 sprintf(query, "select password from UserInfo where username = '%s'", name);
                 int ret = pReactor->sqlQuery(query);
@@ -355,6 +343,32 @@ void* MyReactor::worker_thread_proc(void* args)
                 }
             }
 
+            if(nRecv == -1)
+            {
+                if(errno == EWOULDBLOCK)
+                    break;
+                else
+                {
+                    my_logger->error("recv error, client disconnected, fd = {}", clientfd);
+                    pReactor->close_client(clientfd);
+                    bError = true;
+                    break;
+                }
+            }
+            /* 对端关闭了socket，这端也关闭 */
+            else if(nRecv == 0)
+            {
+                /* 将该客户从客户列表中删除 */
+                pthread_mutex_lock(&pReactor->m_cli_mutex);
+                pReactor->m_fds.erase(clientfd);
+                pthread_mutex_unlock(&pReactor->m_cli_mutex);
+
+                my_logger->info("peer closed, client disconnected, fd = {}", clientfd);
+                pReactor->close_client(clientfd);
+                bError = true;
+                break;
+            }
+
             strclientmsg += buff;
         }
 
@@ -365,7 +379,80 @@ void* MyReactor::worker_thread_proc(void* args)
         }
 
         my_logger->info("client msg: {}", strclientmsg);
+
+        /* 将消息加上时间戳 */
+        ostimestr << "[" << nowstr->tm_year + 1900 << "-"
+            << std::setw(2) << std::setfill('0') << nowstr->tm_mon + 1 << "-"
+            << std::setw(2) << std::setfill('0') << nowstr->tm_mday << " "
+            << std::setw(2) << std::setfill('0') << nowstr->tm_hour << ":"
+            << std::setw(2) << std::setfill('0') << nowstr->tm_min << ":"
+            << std::setw(2) << std::setfill('0') << nowstr->tm_sec << " ]";
+
+        strclientmsg.insert(0, ostimestr.str());
+
+        /* 将消息交给发送消息的线程 */
+        pReactor->m_msgs.push_back(strclientmsg);
+        pthread_cond_signal(&pReactor->m_send_cond);
     }
+    return NULL;
+}
+
+
+void* MyReactor::send_thread_proc(void *args)
+{
+    ARG *arg = (ARG*)args;
+    MyReactor* pReactor = arg->pThis;
+
+    while(!pReactor->m_bStop)
+    {
+        std::string strclientmsg;
+
+        pthread_mutex_lock(&pReactor->m_send_mutex);
+        /* 注意！要用while循环等待 */
+        while(pReactor->m_msgs.empty())
+            pthread_cond_wait(&pReactor->m_send_cond, &pReactor->m_send_mutex);
+
+        strclientmsg = pReactor->m_msgs.front();
+        pReactor->m_msgs.pop_front();
+        pthread_mutex_unlock(&pReactor->m_send_mutex);
+
+        std::cout << std::endl;
+
+
+        while(1)
+        {
+            int nSend;
+            int clientfd;
+            //广播消息
+            for(auto it = pReactor->m_fds.begin(); it != pReactor->m_fds.end(); it++)
+            {
+                clientfd = *it;
+                nSend = send(clientfd, strclientmsg.c_str(), strclientmsg.length(), 0);
+                if(nSend == -1)
+                {
+                    if(errno == EWOULDBLOCK)
+                    {
+                        sleep(10);
+                        continue;
+                    }
+                    else
+                    {
+                        my_logger->error("send error, fd = {}", clientfd);
+                        pReactor->close_client(clientfd);
+                        break;
+                    }
+                }
+            }
+
+            my_logger->info("send: {}", strclientmsg);
+            /* 发送完把缓冲区清干净 */
+            strclientmsg.clear();
+
+            if(strclientmsg.empty())
+                break;
+        }
+    }
+
     return NULL;
 }
 

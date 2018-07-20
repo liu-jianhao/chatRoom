@@ -27,16 +27,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
     sign.cpp \
     drawer.cpp \
-    widget.cpp
+    tcpclient.cpp
 
 HEADERS  += \
     sign.h \
     command.h \
     drawer.h \
-    widget.h
+    tcpclient.h
 
-FORMS += \
-    widget.ui
+FORMS +=
 
 RESOURCES += \
     images.qrc

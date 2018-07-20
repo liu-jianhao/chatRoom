@@ -38,7 +38,6 @@ Sign::Sign(QWidget *parent)
     connect(registerBtn, SIGNAL(clicked()), this, SLOT(slotRegister()));
     connect(LogInBtn, SIGNAL(clicked()), this, SLOT(slotLogIn()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(dataReceived()));
-    connect(tcpSocket, SIGNAL(error()), this, SLOT(errorMsg()));
     connect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
 }
 
@@ -58,14 +57,9 @@ void Sign::slotConnect()
     //连接服务器
     port = 12345;
     serverIP = new QHostAddress();
-    QString ip = "172.29.1.82";
+    QString ip = "127.0.0.1";
     serverIP->setAddress(ip);
     tcpSocket->connectToHost(*serverIP, port);
-}
-
-void Sign::errorMsg()
-{
-    QMessageBox::warning(this, tr("error"), tr("I am sorry, connection failed"));
 }
 
 void Sign::connected()
@@ -79,9 +73,9 @@ void Sign::connected()
 void Sign::slotRegister()
 {
     QString msg = tr(REGISTER);
-    QString name = nameLineEdit->text();
+    username = nameLineEdit->text();
     QString password = passwordLineEdit->text();
-    msg += name + '\t' + password;
+    msg += username + '\t' + password;
     int length = tcpSocket->write(msg.toLatin1(), msg.length());
     if(length != msg.length())
     {
@@ -92,9 +86,9 @@ void Sign::slotRegister()
 void Sign::slotLogIn()
 {
     QString msg = tr(LOGIN);
-    QString name = nameLineEdit->text();
+    username = nameLineEdit->text();
     QString password = passwordLineEdit->text();
-    msg += name + '\t' + password;
+    msg += username + '\t' + password;
     int length = tcpSocket->write(msg.toLatin1(), msg.length());
     if(length != msg.length())
     {
@@ -116,15 +110,15 @@ void Sign::dataReceived()
     if(msg == "LOG IN SUCCESS")
     {
         QMessageBox::information(this, tr("log in success"), tr("log in success"));
-        this->setResult(1); //设置这个值在主函数可以用来判断状态
         this->hide();
 
-        Drawer *d = new Drawer();
-        d->resize(250, 700);
-        d->show();
+        drawer = new Drawer();
+        drawer->toolBtn1->setText(username);
+        drawer->resize(250, 500);
+        drawer->show();
     }
     else if(msg == "REGISTER SUCCESS")
     {
-        QMessageBox::information(this, tr("register success"), tr("register success"));
+        QMessageBox::information(this, tr("register success, now you can log in"), tr("register success, now you can log in"));
     }
 }

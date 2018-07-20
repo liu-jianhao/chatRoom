@@ -3,7 +3,7 @@
 
 #include <QToolButton>
 #include <QToolBox>
-#include "widget.h"
+#include "tcpclient.h"
 
 class Drawer : public QToolBox
 {
@@ -11,17 +11,19 @@ class Drawer : public QToolBox
 public:
     Drawer(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
+    QString username;
+    QToolButton *toolBtn1;
+
 private slots:
     void showChatWidget1();
-    void showChatWidget2();
+    //void showChatWidget2();
 
 
 private:
-    QToolButton *toolBtn1;
-    QToolButton *toolBtn2;
+    //QToolButton *toolBtn2;
 
-    Widget *chatWidget1;
-    Widget *chatWidget2;
+    TcpClient *chat1;
+    //TcpClient *chat2;
 };
 
 #endif // DRAWER_H

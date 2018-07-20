@@ -12,6 +12,7 @@
 #include <QHostAddress>
 
 #include "command.h"
+#include "drawer.h"
 
 class Sign : public QDialog
 {
@@ -36,13 +37,15 @@ private:
     QHostAddress *serverIP;
     QTcpSocket *tcpSocket;
 
+    QString username;
+
+    Drawer *drawer;
 
 public slots:
     void slotRegister();
     void slotLogIn();
     void slotConnect();
     void dataReceived();
-    void errorMsg();
     void connected();
 };
 
