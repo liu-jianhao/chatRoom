@@ -16,14 +16,11 @@ public:
 
 private slots:
     void showChatWidget1();
-    //void showChatWidget2();
 
 
 private:
-    //QToolButton *toolBtn2;
 
     TcpClient *chat1;
-    //TcpClient *chat2;
 };
 
 #endif // DRAWER_H

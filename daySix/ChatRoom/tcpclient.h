@@ -2,7 +2,7 @@
 #define TCPCLIENT_H
 
 #include <QDialog>
-#include <QListWidget>
+#include <QTextBrowser>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
@@ -20,7 +20,7 @@ public:
     QString username;
 
 private:
-    QListWidget *contentListWidget;
+    QTextBrowser *textBrowser;
     QLineEdit *sendLineEdit;
     QPushButton *sendBtn;
     QPushButton *clearBtn;

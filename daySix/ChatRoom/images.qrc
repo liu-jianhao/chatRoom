@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>images/liu.png</file>
-        <file>images/qq.png</file>
-        <file>images/Linux.jpg</file>
         <file>images/ChatRoom.jpg</file>
+        <file>images/Linux.jpg</file>
+        <file>images/laopo.jpg</file>
     </qresource>
 </RCC>

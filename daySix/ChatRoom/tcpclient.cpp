@@ -7,17 +7,17 @@ TcpClient::TcpClient(QWidget *parent,Qt::WindowFlags f)
 {
     setWindowTitle(tr("TCP Client"));
     resize(500, 300);
-    contentListWidget = new QListWidget;
+    textBrowser = new QTextBrowser;
     sendLineEdit = new QLineEdit;
     sendBtn = new QPushButton(tr("Send"));
     clearBtn = new QPushButton(tr("Clear"));
     mainLayout = new QGridLayout(this);
-    mainLayout->addWidget(contentListWidget,0,0,1,3);
+    mainLayout->addWidget(textBrowser,0,0,1,3);
     mainLayout->addWidget(sendLineEdit,1,0);
     mainLayout->addWidget(sendBtn,1,1);
     mainLayout->addWidget(clearBtn,1,2);
     port = 12345;
-    IP = "127.0.0.1";
+    IP = "120.79.214.120";
     serverIP = new QHostAddress();
     connect(sendBtn,SIGNAL(clicked()),this,SLOT(slotSend()));
     connect(clearBtn,SIGNAL(clicked()),this,SLOT(slotClear()));
@@ -58,13 +58,13 @@ void TcpClient::slotSend()
         return;
     }
     QString msg = username + ": " + sendLineEdit->text();
-    tcpSocket->write(msg.toLatin1(), msg.length());
+    tcpSocket->write(msg.toLocal8Bit());
     sendLineEdit->clear();
 }
 
 void TcpClient::slotClear()
 {
-    contentListWidget->clear();
+    textBrowser->clear();
 }
 
 void TcpClient::dataReceived()
@@ -74,8 +74,7 @@ void TcpClient::dataReceived()
         QByteArray datagram;
         datagram.resize(tcpSocket->bytesAvailable());
         tcpSocket->read(datagram.data(),datagram.size());
-        QString msg = datagram.data();
-        contentListWidget->addItem(msg.left(datagram.size()));
-        contentListWidget->scrollToBottom();
+        textBrowser->setCurrentFont(QFont("Times New Roman", 12));
+        textBrowser->append(QString::fromLocal8Bit(datagram));
     }
 }

@@ -57,7 +57,7 @@ void Sign::slotConnect()
     //连接服务器
     port = 12345;
     serverIP = new QHostAddress();
-    QString ip = "127.0.0.1";
+    QString ip = "120.79.214.120";
     serverIP->setAddress(ip);
     tcpSocket->connectToHost(*serverIP, port);
 }
