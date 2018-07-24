@@ -30,6 +30,8 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
+#include "command.h"
+
 #include <mysql.h>
 
 #define WORKER_THREAD_NUM 5
