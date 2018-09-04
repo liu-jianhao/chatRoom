@@ -261,7 +261,7 @@ void* MyReactor::worker_thread_proc(void* args)
                 break;
             }
 
-
+            //注册
             if(buff[0] == REGISTER)
             {
                 std::string rec(buff);
@@ -271,24 +271,46 @@ void* MyReactor::worker_thread_proc(void* args)
 
                 //std::cout << name << '\t' << password << std::endl;
                 char query[100];
-                sprintf(query, "insert into UserInfo values('%s', '%s')", name, password);
+                sprintf(query, "select password from UserInfo where username = '%s'", name);
                 int ret = pReactor->sqlQuery(query);
+                pReactor->res_ptr = mysql_store_result(pReactor->mysql); //即使不需要返回值也要这样，否则会出错
                 if(ret == -1)
                 {
-                    my_logger->error("INSERT error {}", mysql_error(pReactor->mysql));
+                    strclientmsg += "The name has been registered";
                 }
                 else
                 {
-                    strclientmsg += "REGISTER SUCCESS";
-                    //注册成功
-                    continue;
-                    if(mysql_errno(pReactor->mysql))
+                    memset(query, 0, sizeof(query));
+                    sprintf(query, "insert into UserInfo values('%s', '%s')", name, password);
+                    ret = pReactor->sqlQuery(query);
+                    if(ret == -1)
                     {
-                        my_logger->error("Retrive error {}", mysql_error(pReactor->mysql));
+                        strclientmsg += "The name has been registered";
+                        my_logger->error("insert error {}", mysql_error(pReactor->mysql));
+                    }
+                    else
+                    {
+                        //注册成功
+                        //新建一个用户表，用于保存用户信息
+                        memset(query, 0, sizeof(query));
+                        sprintf(query, "create table %s (friends char(30));", name);
+                        pReactor->sqlQuery(query);
+                        //把自己加入到好友表中
+                        memset(query, 0, sizeof(query));
+                        sprintf(query, "insert into %s values('%s')", name, name);
+                        pReactor->sqlQuery(query);
+
+                        strclientmsg += "register success";
+                        continue;
+                        if(mysql_errno(pReactor->mysql))
+                        {
+                            my_logger->error("retrive error {}", mysql_error(pReactor->mysql));
+                        }
                     }
                 }
                 mysql_free_result(pReactor->res_ptr);
             }
+            //登录
             else if(buff[0] == LOGIN)
             {
                 std::string rec(buff);
@@ -299,9 +321,10 @@ void* MyReactor::worker_thread_proc(void* args)
                 char query[100];
                 sprintf(query, "select password from UserInfo where username = '%s'", name);
                 int ret = pReactor->sqlQuery(query);
+                /* std::cout << "ret = " << ret << std::endl; */
                 if(ret == -1)
                 {
-                    my_logger->error("SELECT error {}", mysql_error(pReactor->mysql));
+                    my_logger->error("select error {}", mysql_error(pReactor->mysql));
                 }
                 else
                 {
@@ -309,28 +332,39 @@ void* MyReactor::worker_thread_proc(void* args)
                     if(pReactor->res_ptr)
                     {
                         pReactor->sqlrow = mysql_fetch_row(pReactor->res_ptr);
-                        if(strcmp(pReactor->sqlrow[0], password) == 0)
+                        /* std::cout << pReactor->sqlrow << std::endl; */
+                        if(pReactor->sqlrow)
                         {
-                            strclientmsg += "LOG IN SUCCESS";
-                            //登录成功
-                            continue;
+                            if(strcmp(pReactor->sqlrow[0], password) == 0)
+                            {
+                                strclientmsg += "LOG IN SUCCESS";
+                                //登录成功
+                                continue;
+                            }
+                            else
+                            {
+                                strclientmsg += "password is wrong";
+                            }
+                            if(mysql_errno(pReactor->mysql))
+                            {
+                                my_logger->error("Retrive error {}", mysql_error(pReactor->mysql));
+                            }
+
                         }
                         else
                         {
-                            strclientmsg += "password is wrong";
-                        }
-                        if(mysql_errno(pReactor->mysql))
-                        {
-                            my_logger->error("Retrive error {}", mysql_error(pReactor->mysql));
+                            strclientmsg += "You have to register first";
                         }
                     }
                     mysql_free_result(pReactor->res_ptr);
                 }
             }
+            //聊天信息
             else if(buff[0] == MESSAGE)
             {
                 strclientmsg += buff;
             }
+            //添加好友消息
             else if(buff[0] == ADDFRIEND)
             {
 
