@@ -364,7 +364,7 @@ void* MyReactor::worker_thread_proc(void* args)
             {
                 strclientmsg += buff;
             }
-            //添加好友消息
+            // TODO:添加好友消息
             else if(buff[0] == ADDFRIEND)
             {
 
@@ -391,6 +391,11 @@ void* MyReactor::worker_thread_proc(void* args)
                 << std::setw(2) << std::setfill('0') << nowstr->tm_sec << " ] ";
 
             strclientmsg.insert(0, ostimestr.str());
+        }
+        else
+        {
+            send(clientfd, strclientmsg.c_str(), strclientmsg.length(), 0);
+            continue;
         }
 
         /* 将消息交给发送消息的线程 */
