@@ -50,3 +50,7 @@
 1. 在dayFive时添加的依赖库要自行添加，不然直接make会报错
 2. 在客户端中要注意可能要修改IP地址，这取决于你怎么实验，我的服务器端已经部署到阿里云服务器上了，IP地址为120.79.214.120
 3. 由于我还在学习当中，代码可能不怎么好看，而且客户端实在有些难看。不过如果你喜欢的话，可以顺手点一下star。
+
+感谢赞助！如果此项目对您有帮助，请作者喝一杯奶茶~~ （开心一整天😊😊）
+![image](https://github.com/user-attachments/assets/00b1ffbd-b63a-40f5-8f68-a870d3a9aeeb)
+![image](https://github.com/user-attachments/assets/6f8c0492-ace7-4679-b5ea-ed9029efb192)
